@@ -5,9 +5,16 @@ const fs = require('fs-extra');
 const pageRouter = Router();
 
 // Create routes
-pageRouter
+  pageRouter
   .get('/', (req, res) => {
     res.send('<h1>Home</h1>');
-  });
+    });
+
+  pageRouter
+    .get('/about', (req, res) => {
+      res.send('<h1>About</h1>');
+    });
+
+
 
 module.exports = pageRouter;
