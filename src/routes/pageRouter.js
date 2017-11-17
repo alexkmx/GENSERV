@@ -15,5 +15,4 @@ const pageRouter = Router();
       res.render('about.ejs');
     });
 
-
   module.exports = pageRouter;

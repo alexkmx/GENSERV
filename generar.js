@@ -3,8 +3,14 @@ const fs = require('fs-extra');
 const ejs = require('ejs');
 const pageRouter = require('./src/routes/pageRouter.js');
 const apiRouter = require('./src/routes/apiRouter.js');
+const connectToDb = require('./src/database/dbConnect.js');
+ const dbConfigObj = require('./knexfile.js');
 
 const app = express();  //Inicializo la aplicacion
+
+const appDb = connectToDb(dbConfigObj.development);  //le paso el obj de config
+
+  app.locals.db = appDb;
 
 const PATH = `${__dirname}/src/views/index.html`;   //Declaro la ruta
 
