@@ -4,12 +4,15 @@ const ejs = require('ejs');
 const pageRouter = require('./src/routes/pageRouter.js');
 const apiRouter = require('./src/routes/apiRouter.js');
 const connectToDb = require('./src/database/dbConnect.js');
- const dbConfigObj = require('./knexfile.js');
+const dbConfigObj = require('./knexfile.js');
+const {Model} = require('objection');
+
 
 const app = express();  //Inicializo la aplicacion
 
 const appDb = connectToDb(dbConfigObj.development);  //le paso el obj de config
 
+  Model.knex(appDb);
   app.locals.db = appDb;
 
 const PATH = `${__dirname}/src/views/index.html`;   //Declaro la ruta
