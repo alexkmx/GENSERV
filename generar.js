@@ -6,7 +6,7 @@ const apiRouter = require('./src/routes/apiRouter.js');
 const connectToDb = require('./src/database/dbConnect.js');
 const dbConfigObj = require('./knexfile.js');
 const {Model} = require('objection');
-
+const bodyParser = require('body-parser');
 
 const app = express();  //Inicializo la aplicacion
 
@@ -20,6 +20,9 @@ const PATH = `${__dirname}/src/views/index.html`;   //Declaro la ruta
 app.engine('ejs', ejs.renderFile);
 app.set('view engine','ejs');
 app.set('views', `${__dirname}/src/views`);
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 app.use(express.static(`${__dirname}/public`))
 
