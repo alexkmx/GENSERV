@@ -10,7 +10,6 @@ exports.up = function(knex, Promise) {
      table.string('location');
      table.integer('salary');
      table.boolean('fullTime');
-     table.integer('company_id');
    })
 
 };

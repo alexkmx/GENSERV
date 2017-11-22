@@ -2,8 +2,9 @@ const Router = require('express').Router;
 const Jobs = require('../models/Job.js');
 const Company = require('../models/Company.js');
 
-
 const apiRouter = Router();
+
+//JOBS FUNCTIONS
 
 function getJobs (req, res) {
 
@@ -70,6 +71,8 @@ function deleteJobById(req, res) {
   })
 }
 
+//COMPANY FUNCTIONS
+
 function getCompanyById(req, res) {
   Company
   .query()
@@ -120,19 +123,58 @@ function deleteCompanyById(req, res) {
   })
 }
 
+function deleteCompanyAndRelatedJobsById (req, res) {
+  // Get User to delete from DB.
+  Company
+    .query()
+    .where('id', req.params.id)
+    .first()
+    .returning('*')
+    .then(companyToDelete => {
+      // Delete all tweets from this User.
+      return companyToDelete
+        .$relatedQuery('jobs') // eager name declared in the relation
+        .delete()
+        .where('company_id', companyToDelete.id)
+        .returning('*')
+        .then(jobsDeleted => {
+          return companyToDelete
+        })
+        .catch(error => {
+          return res.send(error).status(500);
+        });
+    })
+    .then(company => {
+      return Company
+        .query()
+        .deleteById(company.id)
+        .then(() => {
+          return company;
+        })
+    })
+    .then(companyDeleted => {
+      res.json(companyDeleted).status(200);
+    })
+    .catch(error => {
+      return res.send(error).status(500);
+    });
+}
+
+//FUNCTIONS JOBS
 apiRouter
   .get('/jobs', getJobs)
-  .get('/companies', getCompanies)
-
-apiRouter
-
   .get('/jobs/:id', getJobById)
   .post('/jobs', createJobs)
   .put('/jobs/:id', updateJob)
-  .delete('/jobs/:id', deleteJobById)
+  .delete('/jobs/:id', deleteJobById);
+
+//FUNCTIONS COMPANY
+apiRouter
+  .get('/companies', getCompanies)
   .get('/companies/:id', getCompanyById)
   .post('/companies', createCompany)
   .put('/companies/:id', updateCompany)
-  .delete('/companies/:id', deleteCompanyById);
+  // .delete('/companies/:id', deleteCompanyById)
+  .delete('/companies/:id', deleteCompanyAndRelatedJobsById);
 
 module.exports = apiRouter;

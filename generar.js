@@ -3,10 +3,17 @@ const fs = require('fs-extra');
 const ejs = require('ejs');
 const pageRouter = require('./src/routes/pageRouter.js');
 const apiRouter = require('./src/routes/apiRouter.js');
+const authRouter = require('./src/routes/authRouter.js');
 const connectToDb = require('./src/database/dbConnect.js');
 const dbConfigObj = require('./knexfile.js');
 const {Model} = require('objection');
 const bodyParser = require('body-parser');
+const passport = require('passport');
+const cookieSession = require('cookie-session');
+const cookieParser = require('cookie-parser');
+
+const registerLocalStrategy = require('./src/middleware/passport-local--registerLocalStrategy.js');
+const { configDeserializeUser, configSerializeUser } = require('./src/helpers/passport-local--sessionActions.js');
 
 const app = express();  //Inicializo la aplicacion
 
@@ -24,10 +31,25 @@ app.set('views', `${__dirname}/src/views`);
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+app.use(cookieParser());
+app.use(cookieSession({
+  name: 'cookiemonster',    //Aqui le paso el nombre de valor que quiera
+  secret: 'superdupersupersecret',
+  httpOnly: true,
+  signed: false
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(registerLocalStrategy());
+passport.serializeUser(configSerializeUser());
+passport.deserializeUser(configDeserializeUser());
+
 app.use(express.static(`${__dirname}/public`))
 
 app.use('/', pageRouter);
 app.use('/api/', apiRouter);
+app.use('/auth', authRouter);
 
 // app.use((req, res) => {
 //   res.send('<div style="width: 40%; margin: 0 auto;"><h1 style="color:red; font-size: 55px; margin-top: 200px;"> 404: NOT FOUND.</h1> <hr/></div>')
